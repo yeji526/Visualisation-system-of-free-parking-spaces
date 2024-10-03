@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Jizhou app</title>
+
+	<title>wasistes</title>
+    <style>
+     #occupancyRate {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(68, 211, 80, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+    }
+    
+    #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+    }
+    #toggleTracking {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        padding: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #vehicleButtons {
+        position: absolute;
+        bottom: 110px;
+        left: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+        .vehicleButton {
+            cursor: pointer;
+            padding: 5px;
+            border: 1px solid #6517e4;
+            margin-bottom: 5px;
+            border-radius: 3px;
+        }
+        .vehicleButton:hover {
+            background-color: #15c40f;
+        } 
+    #toggleLegend {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #legend {
+        display: none;
+        position: absolute;
+        top: 70px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend-color {
+            width: 200px;
+            height: 20px;
+        }
+
+        .legend-colors {
+            width: 100px;
+            height: 20px;
+            margin-right: 0; 
+        }
+
+    #legendParkingArea {
+        background-color: rgba(0, 256, 0, 0.2); /* 设置与实际渲染相符的透明度 */
+    }
+
+        .legend-canvas {
+            width: 50px;
+            height: 50px;
+        }
+
+        .lidarCanvas {
+            width: 50px;
+            height: 50px;
+        }
+
+    #toggleInfo {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #infoBox {
+        display: none;
+        position: absolute;
+        bottom: 50px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        width: 600px;
+        z-index: 1000; /* 确保信息框在其他元素之上 */
+    }
+    #infoBox h2 {
+        margin-top: 0;
+    }
+    #infoBox p {
+        margin: 10px 0;
+    }
+    </style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.7.0/math.min.js"></script>
+	<script src="https://d3js.org/d3.v5.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+	</head>
+	<body>
+    <div id="occupancyRate">Free lot number: 0</div>
+    </div>
+    <div id="toggleTracking">Global / Tracking Mode</div>
+    <div id="vehicleButtons"></div>
+    <div id="toggleLegend">Show Legend</div>
+    <div id="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: rgb(0, 255, 0, 0.5);"></div>
+            <div>Parking Area</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(to right, #aaff03, #ffffff);"></div>
+            <div>Empty Parking Spot (100% to almost 0% certainty)</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(to right, rgb( 0,  0,142), #ffffff);"></div>
+            <div>Parked Car bounding box (100% to almost 0% certainty)</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: rgb(70, 70, 70);"></div>
+            <div>Buildings</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: rgb(107, 142, 35);"></div>
+            <div>Vegetation</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: rgb( 0,  0,142);"></div>
+            <div>Parked Vehicle</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: rgba(0128, 64,128);"></div>
+            <div>Road</div>
+        </div>
+        <div class="legend-item">
+            <canvas class="legend-canvas" id="vehicleModelCanvas"></canvas>
+            <div>Simulation Vehicle</div>
+        </div>
+        <!-- <div class="legend-item">
+            <canvas class="lidarCanvas" id="lidarModelCanvas"></canvas>
+            <div>LiDAR</div>
+        </div> -->
+    </div>
+    <div id="toggleInfo">Show Info</div>
+    <div id="infoBox">
+        <h2>Free road parking space detection and visualisation stsyem</h2>
+        <p>This system detects vacant parking spaces on roadsides. It mainly focuses on the vehicles parked on roadsides and the corresponding vacant parking spaces. By clicking the 'Global/Tracking Mode' button, users can switch their perspective to 'Global'(Monitoring the scenario globally) or 'Tracking'(Focusing on a selected car) mode. In the scenario, simulated traffic is implemented, and the vehicles in the simulation passing by are continuously revealing the parked vehicles and vacant parking spaces nearby. Parked cars are represented using a purple bounding box, and yellow rectangles represent vacant parking spaces. These are all presented in the legend interface in the upper right button. If the detected objects remain not updated for a long time, their colours will gradually pale white. This means the certainty that these objects remain here is decreasing.</p>
+        <p><strong>Data Source: </strong> TUM-MLS-2018: Mobile laser scanning - test data (2018) TUM MLS 2 - labeled, SUMO Simulation</p>
+        <p><strong>Developed by:</strong> Jizhou Li</p>
+    </div>
+</div>
+<script type="module" src="/main2.js"></script>
+	</body>
+</html>
