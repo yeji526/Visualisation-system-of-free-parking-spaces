@@ -21,5 +21,3 @@ bounding box data type (json or csv)
 bounding box data file path, number of bounding box files
 
 simulate traffic or not
-
-
