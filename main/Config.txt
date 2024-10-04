@@ -14,7 +14,7 @@ pointclouds:
 #./tum_dynamic/veh21/,2000
 #./tum_dynamic/veh31/,2000
 #./tum_dynamic/veh41/,2000
-./0619.3/pcd/,1200
+./0619.3/pcd1/,1200
 
 boundingbox_type:
 #json

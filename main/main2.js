@@ -303,7 +303,7 @@ function pcdload(frame, path, groupIndex) {
     // console.log('fp',filePath);
     loader.load(filePath, function (pcd) {
         const material = new THREE.PointsMaterial({
-            size: 0.5,
+            size: 0.25,
             vertexColors: true
         });
         // 移除当前组的上一个点云
@@ -1236,7 +1236,7 @@ function animate(timestamp) {
                         const point = vehicle.path.getPointAt(vehicle.progress);
                         if (point) {
                             vehicle.model.position.copy(point);
-                            const nextPoint = vehicle.path.getPointAt((vehicle.progress + 0.05) % 1);
+                            const nextPoint = vehicle.path.getPointAt((vehicle.progress + 0.06) % 1);
                             if (nextPoint) {
                                 vehicle.model.lookAt(nextPoint);
                                 vehicle.model.up.set(0, 0, 1);
