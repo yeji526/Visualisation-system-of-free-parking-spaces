@@ -10,7 +10,7 @@ This is the guidance to the operation of the vacant parking detection and visual
 
 5. The system is displayed now in the browser.
 
-In this thesis, two scenarios are built. Users may switch the scenarios by editing the 'Config.txt' file in the main folder. Simply put the path of the data following the format, system will read the data and process them. The structure follows:
+In this thesis, two scenarios are built. Users may switch the scenarios by editing the 'Config.txt' file in the main folder. Or if users want to visualise new data, it can also be done by editing the 'Config.txt' file. Simply put the path of the data following the format, system will read the data and process them. The structure follows:
 
 Transformation matrix (need to calculate)
 
