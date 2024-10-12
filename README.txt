@@ -24,7 +24,7 @@ bounding box data file path, number of bounding box files
 
 simulate traffic or not
 
-§ There're also some pythoin scripts that would be helpful for the processing of data.
+§ There're also some python scripts that would be helpful for the processing of data.
 
 'rename2.py' is able to rename files in bulk. Just by editing the path in the script, it will rename the files in the manner that satisfies the requirements of the system.
 
