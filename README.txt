@@ -31,3 +31,4 @@ simulate traffic or not
 'pcdcolor.py' is able to change the color of points. However, it only supports single color, which means everyone point in the pcd will be converted to the same color. Be careful using this script if the original data has its own color.
 
 'sparse.py' is able to make the point cloud sparser. The sparsity ratio can be adjusted accordingly.
+
