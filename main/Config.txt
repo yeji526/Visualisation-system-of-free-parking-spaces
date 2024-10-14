@@ -14,16 +14,18 @@ pointclouds:
 #./tum_dynamic/veh21/,2000
 #./tum_dynamic/veh31/,2000
 #./tum_dynamic/veh41/,2000
-./0619.3/pcd1/,1200
+#./0619.3/pcd1/,1200
+./0620/data/,1000
 
 boundingbox_type:
-#json
-csv
+json
+#csv
 
 boundingboxes:
 #./json/,1
-./0619.3/bb/,1200
+#./0619.3/bb/,1200
 #./tum_dynamic/json1/,2000
+./0620/label/,1000
 
 simulate_traffic:
 yes

@@ -278,8 +278,8 @@ function parseConfigFile(data) {
 // );
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);  // 白色环境光，强度为 0.5
 scene1.add(ambientLight);
-let lidars = [];  // 用来存储每组点云的雷达模型
-const loaderGLTF = new GLTFLoader();
+// let lidars = [];  // 用来存储每组点云的雷达模型
+// const loaderGLTF = new GLTFLoader();
 // if (simulateTraffic === false) {
 //     pointCloudPaths.forEach((group, groupIndex) => {
 //         // 使用 GLTFLoader 加载雷达模型
@@ -303,7 +303,7 @@ function pcdload(frame, path, groupIndex) {
     // console.log('fp',filePath);
     loader.load(filePath, function (pcd) {
         const material = new THREE.PointsMaterial({
-            size: 0.25,
+            size: 0.4,
             vertexColors: true
         });
         // 移除当前组的上一个点云
@@ -357,10 +357,9 @@ function pcdload(frame, path, groupIndex) {
     revealRectangles(previousLidarPosition, currentLidarPosition);
     previousLidarPosition.copy(currentLidarPosition);
 
-    // 将点云的模型赋给 `vehicles` 中相应的车辆
     const vehicleId = `pcd_${groupIndex}`;  // 为每个点云生成一个唯一的车辆ID
     vehicles[vehicleId] = {
-        model: pcd,  // 现在车辆的 model 是点云
+        model: pcd,
         position: currentLidarPosition.clone(),
         completed: false,  // 标记为未完成追踪
         addedToScene: true,  // 标记为已经添加到场景中
@@ -374,8 +373,6 @@ function pcdload(frame, path, groupIndex) {
 //json
 const jsonscene = new THREE.Group();
 const freescene = new THREE.Group();
-const tumscene = new THREE.Group();
-scene.add(tumscene);
 scene.add(jsonscene);
 scene.add(freescene);
 let initialPositions = {};
@@ -585,7 +582,7 @@ async function processJsonData(frame, path){
             if (inside(point, area)) {
                 tumcarposARR[index].push(point);
                 tumcarscaleARR[index].push(scale);
-                tumcarrotARR[index].push(rotation.z - data.psr.rotation.z);
+                tumcarrotARR[index].push(rotation.z + data.psr.rotation.z);
             }
         });
     });
@@ -673,21 +670,21 @@ async function processJsonData(frame, path){
                 // console.log('kfpos',kfframe);
     }
     // console.log('carpos',tumcarposARR);
-    clearGroup(tumscene);
+    clearGroup(jsonscene);
     for ( let k = 0; k < parkingnumber; k++){
-        for ( let l = 0; l < tumcarposARR[k].length; l++){
-            const boxGeometry = new THREE.BoxGeometry(tumcarscaleARR[k][l].x, tumcarscaleARR[k][l].y, tumcarscaleARR[k][l].z);
+        for ( let l = 0; l < kfframe[k].length; l++){
+            const boxGeometry = new THREE.BoxGeometry(kfframescale[k][l].x, kfframescale[k][l].y, kfframescale[k][l].z);
             const boxMaterial = new THREE.MeshBasicMaterial({
                 color: 0xbb33FA,
                 wireframe: true,
                 visible: false
             });
             const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-            boxMesh.position.set(tumcarposARR[k][l].x, tumcarposARR[k][l].y, -26);
-            boxMesh.rotation.set(0, 0, tumcarrotARR[k][l]);
-            const uid = generateUID(Math.round(tumcarposARR[k][l].x), Math.round(tumcarposARR[k][l].y));
+            boxMesh.position.set(kfframe[k][l].x, kfframe[k][l].y, -26);
+            boxMesh.rotation.set(0, 0, kfframerot[k][l]);
+            const uid = generateUID(Math.round(kfframe[k][l].x), Math.round(kfframe[k][l].y));
             boxMesh.userData.uid = uid;
-            tumscene.add(boxMesh);
+            jsonscene.add(boxMesh);
         }
     }
     detect(parkingAreas, kfframe, kfframescale, carlength, freescene);
@@ -1070,16 +1067,15 @@ async function fetchrouXMLFile(url) {
 
 function renderRoutes(vehicleRoutes, edgeCoordinates) {
     const paths = {};
-    const pathsSpeeds = {};  // 新增，用于存储路径段的速度限制
+    const pathsSpeeds = {};
     Object.entries(vehicleRoutes).forEach(([vehicleId, edges]) => {
         const points = [];
         const speeds = [];  // 用于存储每段路径的速度限制
         edges.forEach(edgeId => {
             if (edgeCoordinates[edgeId]) {
-                // 选择最佳车道，假设选择第一个车道
                 const lane = edgeCoordinates[edgeId][0]; 
                 lane.coordinates.forEach(coord => {
-                    if (coord && coord.length === 2) {  // 确保坐标有效
+                    if (coord && coord.length === 2) {
                         points.push(new THREE.Vector3(coord[0], coord[1], -24));
                     } else {
                         console.warn(`Invalid coordinate for edge ${edgeId}`, coord);
@@ -1119,7 +1115,7 @@ const { paths, pathsSpeeds } = renderRoutes(vehicleRoutes, edgeCoordinates);
 Object.keys(vehicleRoutes).forEach(vehicleId => {
     if (paths[vehicleId]) {
         const geometry = new THREE.BoxGeometry(3, 1.5, 2);  // 调整尺寸以匹配车辆的大小
-        const material = new THREE.MeshBasicMaterial({ color: 0x00008e });  // 黑色材质
+        const material = new THREE.MeshBasicMaterial({ color: 0x00008e });
         const cube = new THREE.Mesh(geometry, material);
 
         vehicles[vehicleId] = {
@@ -1134,8 +1130,6 @@ Object.keys(vehicleRoutes).forEach(vehicleId => {
             type: 'simulation'
         };
 
-        // 设置模型的缩放比例，假设这个比例适合您的场景
-        // vehicles[vehicleId].model.scale.set(0.03, 0.03, 0.03);
     } else {
         console.warn(`Path not found for vehicle ${vehicleId}`);
     }
@@ -1152,7 +1146,7 @@ let simulationStartTime = performance.now();
 let frame = 1;
 
 let lastFrameTime = 0;
-let frameInterval = 100;
+let frameInterval = 150;
 
 function animate(timestamp) {
     if (!lastFrameTime) lastFrameTime = timestamp;
