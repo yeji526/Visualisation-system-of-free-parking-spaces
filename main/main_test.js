@@ -134,7 +134,7 @@ async function loadParkingAreas() {
     const promises = [];
     for (let j = 1; j <= parkingnumber; j++) {
         const index2 = String(j);
-        const filepath2 = `./tumparking${index2}.csv`;
+        const filepath2 = `./parkingspaces/tumparking${index2}.csv`;
         promises.push(loadCSV(filepath2));
     }
 
@@ -180,7 +180,7 @@ const positionARR = [];
 const scaleARR = [];
 const carlength = 4;
 const dataCache = new Map();
-const filepathtum = './MLS2018_Arcisstr_instance_20cm_full.json';
+const filepathtum = './json/000001.json';
 async function loadJsonData(filePath1) {
     const response = await fetch(filePath1);
     const jsonData = await response.json();
@@ -279,8 +279,8 @@ let edgeCoordinates = {};
 let vehicleRoutes = {};
 let vehicleDepartTimes = {};
 let vehicleSpeeds = {};
-const tumURL = '1100/osm.passenger.rou.xml';
-const osmURL = '1100/osm.net.xml';   
+const tumURL = '1080/osm.passenger.rou.xml';
+const osmURL = '1080/osm.net.xml';   
 vehicleRoutes = await fetchvehXMLFile(tumURL);
 edgeCoordinates = await fetchrouXMLFile(osmURL);
 
